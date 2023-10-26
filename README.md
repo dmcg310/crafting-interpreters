@@ -2,4 +2,4 @@
 
 ### References
 
-- [Crafting Interpretets](https://craftinginterpreters.com/)
+- [Crafting Interpreters](https://craftinginterpreters.com/)
