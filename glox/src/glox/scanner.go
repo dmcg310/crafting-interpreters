@@ -1,5 +1,7 @@
 package main
 
+import "strconv"
+
 type _Scanner struct {
 	source  string
 	tokens  []Token
@@ -98,8 +100,32 @@ func (s *_Scanner) scanToken() {
 	case '"':
 		s.string()
 	default:
-		s.l.Error(s.line, "Unexpected character.")
+		if s.isDigit(c) {
+			s.number()
+		} else {
+			s.l.Error(s.line, "Unexpected character.")
+		}
 	}
+}
+
+func (s *_Scanner) number() {
+	for s.isDigit(s.peek()) {
+		s.advance()
+	}
+
+	// look for a fractional part
+	if s.peek() == '.' && s.isDigit(s.peekNext()) {
+		// consume the '.'
+		s.advance()
+
+		for s.isDigit(s.peek()) {
+			s.advance()
+		}
+	}
+
+	substr := s.source[s.start:s.current]
+	val, _ := strconv.ParseFloat(substr, 64)
+	s.addToken(NUMBER, val)
 }
 
 func (s *_Scanner) string() {
@@ -141,6 +167,18 @@ func (s *_Scanner) peek() byte {
 	}
 
 	return s.source[s.current]
+}
+
+func (s *_Scanner) peekNext() byte {
+	if s.current+1 >= len(s.source) {
+		return 0
+	}
+
+	return s.source[s.current+1]
+}
+
+func (s *_Scanner) isDigit(c byte) bool {
+	return c >= '0' && c <= '9'
 }
 
 func (s *_Scanner) advance() byte {
