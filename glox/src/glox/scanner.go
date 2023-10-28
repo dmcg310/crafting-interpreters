@@ -3,18 +3,23 @@ package main
 import "strconv"
 
 type _Scanner struct {
-	source  string
-	tokens  []Token
-	start   int
-	current int
-	line    int
-	l       Lox
+	source   string
+	tokens   []Token
+	start    int
+	current  int
+	line     int
+	l        *Lox
+	keywords map[string]_TokenType
 }
 
-func NewScanner(source string) _Scanner {
-	return _Scanner{
+func _NewScanner(source string, l *Lox) _Scanner {
+	s := _Scanner{
 		source: source,
+		l:      l,
 	}
+	s.InitKeywords()
+
+	return s
 }
 
 func (s *_Scanner) scanTokens() []Token {
@@ -102,10 +107,26 @@ func (s *_Scanner) scanToken() {
 	default:
 		if s.isDigit(c) {
 			s.number()
+		} else if s.isAlpha(c) {
+			s.identifier()
 		} else {
 			s.l.Error(s.line, "Unexpected character.")
 		}
 	}
+}
+
+func (s *_Scanner) identifier() {
+	for s.isAlphaNumeric(s.peek()) {
+		s.advance()
+	}
+
+	text := s.source[s.start:s.current]
+	tokenType, exists := s.keywords[text]
+	if !exists {
+		tokenType = IDENTIFIER
+	}
+
+	s.addToken(tokenType, nil)
 }
 
 func (s *_Scanner) number() {
@@ -177,12 +198,23 @@ func (s *_Scanner) peekNext() byte {
 	return s.source[s.current+1]
 }
 
+func (s *_Scanner) isAlpha(c byte) bool {
+	return (c >= 'a' && c <= 'z') ||
+		(c >= 'A' && c <= 'Z') ||
+		c == '_'
+}
+
+func (s *_Scanner) isAlphaNumeric(c byte) bool {
+	return s.isAlpha(c) || s.isDigit(c)
+}
+
 func (s *_Scanner) isDigit(c byte) bool {
 	return c >= '0' && c <= '9'
 }
 
 func (s *_Scanner) advance() byte {
-	return '?'
+	s.current++
+	return s.source[s.current-1]
 }
 
 func (s *_Scanner) addToken(tokenType _TokenType, literal interface{}) {
@@ -192,4 +224,24 @@ func (s *_Scanner) addToken(tokenType _TokenType, literal interface{}) {
 
 func (s *_Scanner) isAtEnd() bool {
 	return s.current >= len(s.source)
+}
+
+func (s *_Scanner) InitKeywords() {
+	s.keywords = make(map[string]_TokenType)
+	s.keywords["and"] = AND
+	s.keywords["class"] = CLASS
+	s.keywords["else"] = ELSE
+	s.keywords["false"] = FALSE
+	s.keywords["for"] = FOR
+	s.keywords["fun"] = FUN
+	s.keywords["if"] = IF
+	s.keywords["nil"] = NIL
+	s.keywords["or"] = OR
+	s.keywords["print"] = PRINT
+	s.keywords["return"] = RETURN
+	s.keywords["super"] = SUPER
+	s.keywords["this"] = THIS
+	s.keywords["true"] = TRUE
+	s.keywords["var"] = VAR
+	s.keywords["while"] = WHILE
 }

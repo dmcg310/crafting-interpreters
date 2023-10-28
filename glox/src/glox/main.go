@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 type Lox struct {
@@ -42,14 +43,15 @@ func (l *Lox) runPrompt() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
+		l.HadError = false
 		fmt.Print("> ")
 		if !scanner.Scan() {
 			break
 		}
-		line := scanner.Text()
-		l.run(line)
 
-		l.HadError = false
+		line := scanner.Text()
+		line = strings.TrimSuffix(line, "\n")
+		l.run(line)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -61,9 +63,11 @@ func (l *Lox) runPrompt() {
 }
 
 func (l *Lox) run(source string) {
-	for _, runeValue := range source {
-		char := string(runeValue)
-		fmt.Println(char)
+	scanner := _NewScanner(source, l)
+	tokens := scanner.scanTokens()
+
+	for _, token := range tokens {
+		fmt.Println(token)
 	}
 }
 
