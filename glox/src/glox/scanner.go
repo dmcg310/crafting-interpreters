@@ -6,6 +6,7 @@ type _Scanner struct {
 	start   int
 	current int
 	line    int
+	l       Lox
 }
 
 func NewScanner(source string) _Scanner {
@@ -28,7 +29,6 @@ func (s *_Scanner) scanTokens() []Token {
 }
 
 func (s *_Scanner) scanToken() {
-	l := Lox{}
 	c := s.advance()
 	var token _TokenType
 
@@ -83,15 +83,43 @@ func (s *_Scanner) scanToken() {
 		s.addToken(token, nil)
 	case '/':
 		if s.match('/') {
-			for peek() != '\n' && !s.isAtEnd() {
+			for s.peek() != '\n' && !s.isAtEnd() {
 				s.advance()
 			}
 		} else {
 			s.addToken(SLASH, nil)
 		}
+	case ' ':
+	case '\r':
+	case '\t':
+		break
+	case '\n':
+		s.line++
+	case '"':
+		s.string()
 	default:
-		l.Error(s.line, "Unexpected character.")
+		s.l.Error(s.line, "Unexpected character.")
 	}
+}
+
+func (s *_Scanner) string() {
+	for s.peek() != '"' && !s.isAtEnd() {
+		if s.peek() == '\n' {
+			s.line++
+		}
+
+		s.advance()
+	}
+
+	if s.isAtEnd() {
+		s.l.Error(s.line, "Unterminated string.")
+		return
+	}
+
+	s.advance()
+
+	value := s.source[s.start+1 : s.current-1]
+	s.addToken(STRING, value)
 }
 
 func (s *_Scanner) match(expected byte) bool {
