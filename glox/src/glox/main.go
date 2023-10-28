@@ -67,7 +67,7 @@ func (l *Lox) run(source string) {
 	}
 }
 
-func (l *Lox) error(line int, message string) {
+func (l *Lox) Error(line int, message string) {
 	l.report(line, "", message)
 }
 
