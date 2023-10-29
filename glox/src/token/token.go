@@ -1,15 +1,17 @@
-package main
+package token
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Token struct {
-	Type    _TokenType
+	Type    TTokentype
 	Lexeme  string
 	Literal interface{}
 	Line    int
 }
 
-func NewToken(t _TokenType, lexeme string, literal interface{}, line int) Token {
+func NewToken(t TTokentype, lexeme string, literal interface{}, line int) Token {
 	return Token{
 		Type:    t,
 		Lexeme:  lexeme,

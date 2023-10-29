@@ -1,10 +1,10 @@
-package main
+package token
 
-type _TokenType int
+type TTokentype int
 
 const (
 	// LEFT_PAREN Single-character tokens.
-	LEFT_PAREN _TokenType = iota
+	LEFT_PAREN TTokentype = iota
 	RIGHT_PAREN
 	LEFT_BRACE
 	RIGHT_BRACE

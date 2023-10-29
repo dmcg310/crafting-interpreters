@@ -1,28 +1,32 @@
-package main
+package scanner
 
-import "strconv"
+import (
+	"github.com/dmcg310/glox/src/report"
+	"github.com/dmcg310/glox/src/token"
+	"strconv"
+)
 
 type _Scanner struct {
 	source   string
-	tokens   []Token
+	tokens   []token.Token
 	start    int
 	current  int
 	line     int
-	l        *Lox
-	keywords map[string]_TokenType
+	reporter report.Reporter
+	keywords map[string]token.TTokentype
 }
 
-func _NewScanner(source string, l *Lox) _Scanner {
+func NewScanner(source string, reporter report.Reporter) _Scanner {
 	s := _Scanner{
-		source: source,
-		l:      l,
+		source:   source,
+		reporter: reporter,
 	}
 	s.InitKeywords()
 
 	return s
 }
 
-func (s *_Scanner) scanTokens() []Token {
+func (s *_Scanner) ScanTokens() []token.Token {
 	s.start, s.current = 0, 0
 	s.line = 1
 
@@ -31,70 +35,70 @@ func (s *_Scanner) scanTokens() []Token {
 		s.scanToken()
 	}
 
-	s.tokens = append(s.tokens, NewToken(EOF, "", nil, s.line))
+	s.tokens = append(s.tokens, token.NewToken(token.EOF, "", nil, s.line))
 	return s.tokens
 }
 
 func (s *_Scanner) scanToken() {
 	c := s.advance()
-	var token _TokenType
+	var _token token.TTokentype
 
 	switch c {
 	case '(':
-		s.addToken(LEFT_PAREN, nil)
+		s.addToken(token.LEFT_PAREN, nil)
 	case ')':
-		s.addToken(RIGHT_PAREN, nil)
+		s.addToken(token.RIGHT_PAREN, nil)
 	case '{':
-		s.addToken(LEFT_BRACE, nil)
+		s.addToken(token.LEFT_BRACE, nil)
 	case '}':
-		s.addToken(RIGHT_BRACE, nil)
+		s.addToken(token.RIGHT_BRACE, nil)
 	case ',':
-		s.addToken(COMMA, nil)
+		s.addToken(token.COMMA, nil)
 	case '.':
-		s.addToken(DOT, nil)
+		s.addToken(token.DOT, nil)
 	case '-':
-		s.addToken(MINUS, nil)
+		s.addToken(token.MINUS, nil)
 	case '+':
-		s.addToken(PLUS, nil)
+		s.addToken(token.PLUS, nil)
 	case ';':
-		s.addToken(SEMICOLON, nil)
+		s.addToken(token.SEMICOLON, nil)
 	case '*':
-		s.addToken(STAR, nil)
+		s.addToken(token.STAR, nil)
 	case '!':
 		if s.match('=') {
-			token = BANG_EQUAL
+			_token = token.BANG_EQUAL
 		} else {
-			token = BANG
+			_token = token.BANG
 		}
-		s.addToken(token, nil)
+		s.addToken(_token, nil)
 	case '=':
 		if s.match('=') {
-			token = EQUAL_EQUAL
+			_token = token.EQUAL_EQUAL
 		} else {
-			token = EQUAL
+			_token = token.EQUAL
 		}
-		s.addToken(token, nil)
+		s.addToken(_token, nil)
 	case '<':
 		if s.match('=') {
-			token = LESS_EQUAL
+			_token = token.LESS_EQUAL
 		} else {
-			token = LESS
+			_token = token.LESS
 		}
-		s.addToken(token, nil)
+		s.addToken(_token, nil)
 	case '>':
 		if s.match('=') {
-			token = GREATER_EQUAL
+			_token = token.GREATER_EQUAL
 		} else {
-			token = GREATER
+			_token = token.GREATER
 		}
-		s.addToken(token, nil)
+		s.addToken(_token, nil)
 	case '/':
 		if s.match('/') {
 			for s.peek() != '\n' && !s.isAtEnd() {
 				s.advance()
 			}
 		} else {
-			s.addToken(SLASH, nil)
+			s.addToken(token.SLASH, nil)
 		}
 	case ' ':
 	case '\r':
@@ -110,7 +114,7 @@ func (s *_Scanner) scanToken() {
 		} else if s.isAlpha(c) {
 			s.identifier()
 		} else {
-			s.l.Error(s.line, "Unexpected character.")
+			s.reporter.Error(s.line, "Unexpected character.")
 		}
 	}
 }
@@ -123,7 +127,7 @@ func (s *_Scanner) identifier() {
 	text := s.source[s.start:s.current]
 	tokenType, exists := s.keywords[text]
 	if !exists {
-		tokenType = IDENTIFIER
+		tokenType = token.IDENTIFIER
 	}
 
 	s.addToken(tokenType, nil)
@@ -146,7 +150,7 @@ func (s *_Scanner) number() {
 
 	substr := s.source[s.start:s.current]
 	val, _ := strconv.ParseFloat(substr, 64)
-	s.addToken(NUMBER, val)
+	s.addToken(token.NUMBER, val)
 }
 
 func (s *_Scanner) string() {
@@ -159,14 +163,14 @@ func (s *_Scanner) string() {
 	}
 
 	if s.isAtEnd() {
-		s.l.Error(s.line, "Unterminated string.")
+		s.reporter.Error(s.line, "Unterminated string.")
 		return
 	}
 
 	s.advance()
 
 	value := s.source[s.start+1 : s.current-1]
-	s.addToken(STRING, value)
+	s.addToken(token.STRING, value)
 }
 
 func (s *_Scanner) match(expected byte) bool {
@@ -217,9 +221,9 @@ func (s *_Scanner) advance() byte {
 	return s.source[s.current-1]
 }
 
-func (s *_Scanner) addToken(tokenType _TokenType, literal interface{}) {
+func (s *_Scanner) addToken(tokenType token.TTokentype, literal interface{}) {
 	text := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, NewToken(tokenType, text, literal, s.line))
+	s.tokens = append(s.tokens, token.NewToken(tokenType, text, literal, s.line))
 }
 
 func (s *_Scanner) isAtEnd() bool {
@@ -227,21 +231,21 @@ func (s *_Scanner) isAtEnd() bool {
 }
 
 func (s *_Scanner) InitKeywords() {
-	s.keywords = make(map[string]_TokenType)
-	s.keywords["and"] = AND
-	s.keywords["class"] = CLASS
-	s.keywords["else"] = ELSE
-	s.keywords["false"] = FALSE
-	s.keywords["for"] = FOR
-	s.keywords["fun"] = FUN
-	s.keywords["if"] = IF
-	s.keywords["nil"] = NIL
-	s.keywords["or"] = OR
-	s.keywords["print"] = PRINT
-	s.keywords["return"] = RETURN
-	s.keywords["super"] = SUPER
-	s.keywords["this"] = THIS
-	s.keywords["true"] = TRUE
-	s.keywords["var"] = VAR
-	s.keywords["while"] = WHILE
+	s.keywords = make(map[string]token.TTokentype)
+	s.keywords["and"] = token.AND
+	s.keywords["class"] = token.CLASS
+	s.keywords["else"] = token.ELSE
+	s.keywords["false"] = token.FALSE
+	s.keywords["for"] = token.FOR
+	s.keywords["fun"] = token.FUN
+	s.keywords["if"] = token.IF
+	s.keywords["nil"] = token.NIL
+	s.keywords["or"] = token.OR
+	s.keywords["print"] = token.PRINT
+	s.keywords["return"] = token.RETURN
+	s.keywords["super"] = token.SUPER
+	s.keywords["this"] = token.THIS
+	s.keywords["true"] = token.TRUE
+	s.keywords["var"] = token.VAR
+	s.keywords["while"] = token.WHILE
 }
