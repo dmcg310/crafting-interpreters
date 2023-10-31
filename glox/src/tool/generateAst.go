@@ -18,10 +18,10 @@ func main() {
 	g := GenerateAst{}
 	outputDir := os.Args[1]
 	types := []string{
-		"Binary   : Expr left, token.Token operator, Expr right",
-		"Grouping : Expr expression",
-		"Literal  : interface{} value",
-		"Unary    : token.Token operator, Expr right",
+		"Binary   : Expr Left, token.Token Operator, Expr Right",
+		"Grouping : Expr Expression",
+		"Literal  : interface{} Value",
+		"Unary    : token.Token Operator, Expr Right",
 	}
 	g.defineAst(outputDir, "Expr", types)
 }
