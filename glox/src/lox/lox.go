@@ -61,4 +61,5 @@ func (l *Lox) Run(source string) {
 
 func (l *Lox) Error(line int, message string) {
 	l.Reporter.Error(line, message)
+	l.HadError = true
 }

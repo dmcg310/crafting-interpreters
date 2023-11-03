@@ -1,6 +1,7 @@
 package lox
 
 import (
+	"fmt"
 	"github.com/dmcg310/glox/src/ast"
 	"github.com/dmcg310/glox/src/token"
 )
@@ -8,12 +9,14 @@ import (
 type Parser struct {
 	Tokens  []token.Token
 	Current int
+	Lox     *Lox
 }
 
-func NewParser(tokens []token.Token) Parser {
+func NewParser(tokens []token.Token, lox *Lox) Parser {
 	return Parser{
 		Tokens:  tokens,
 		Current: 0,
+		Lox:     lox,
 	}
 }
 
@@ -126,7 +129,9 @@ func (p *Parser) primary() ast.Expr {
 
 	if p.match(token.LEFT_PAREN) {
 		expr := p.expression()
-		p.consume(token.RIGHT_PAREN, "Expect ')' after expression.")
+		_, err := p.consume(token.RIGHT_PAREN, "Expect ')' after expression.")
+		if err != nil {
+		}
 
 		return &ast.Grouping{
 			Expression: expr,
@@ -145,6 +150,14 @@ func (p *Parser) match(types ...token.TTokentype) bool {
 	}
 
 	return false
+}
+
+func (p *Parser) consume(ttype token.TTokentype, message string) (token.Token, error) {
+	if p.check(ttype) {
+		return p.advance(), nil
+	}
+
+	return token.Token{}, fmt.Errorf("%s %s", p.peek(), message)
 }
 
 func (p *Parser) check(ttype token.TTokentype) bool {
@@ -173,4 +186,14 @@ func (p *Parser) peek() token.Token {
 
 func (p *Parser) previous() token.Token {
 	return p.Tokens[p.Current-1]
+}
+
+func (p *Parser) error(ttoken token.Token, message string) *ParseError {
+	if ttoken.Type == token.EOF {
+		p.Lox.Error(ttoken.Line, " at end"+message)
+	} else {
+		p.Lox.Error(ttoken.Line, fmt.Sprintf(" at '%s'%s", ttoken.Lexeme, message))
+	}
+
+	return NewParserError(ttoken.Line, message)
 }
