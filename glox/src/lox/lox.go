@@ -53,10 +53,15 @@ func (l *Lox) RunPrompt() {
 func (l *Lox) Run(source string) {
 	_scanner := scanner.NewScanner(source, l.Reporter)
 	tokens := _scanner.ScanTokens()
+	parser := NewParser(tokens, l)
+	expr := parser.Parse()
 
-	for _, token := range tokens {
-		fmt.Println(token)
+	if l.HadError {
+		return
 	}
+
+	ast := AstPrinter{}
+	fmt.Println(ast.Print(expr))
 }
 
 func (l *Lox) Error(line int, message string) {
