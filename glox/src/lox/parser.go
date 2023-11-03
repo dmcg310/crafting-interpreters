@@ -197,3 +197,27 @@ func (p *Parser) error(ttoken token.Token, message string) *ParseError {
 
 	return NewParserError(ttoken.Line, message)
 }
+
+func (p *Parser) synchronise() {
+	p.advance()
+
+	for !p.isAtEnd() {
+		if p.previous().Type == token.SEMICOLON {
+			return
+		}
+
+		switch p.peek().Type {
+		case token.CLASS:
+		case token.FUN:
+		case token.VAR:
+		case token.FOR:
+		case token.IF:
+		case token.WHILE:
+		case token.PRINT:
+		case token.RETURN:
+			return
+		}
+	}
+
+	p.advance()
+}
