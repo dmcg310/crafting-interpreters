@@ -2,11 +2,24 @@ package lox
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/dmcg310/glox/src/ast"
 	"github.com/dmcg310/glox/src/token"
 )
 
 type Interpreter struct{}
+
+func (i *Interpreter) interpret(expr ast.Expr) error {
+	val, err := i.evaluate(expr)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(i.stringify(val))
+
+	return nil
+}
 
 func (i *Interpreter) VisitLiteralExpr(expr ast.Literal) (interface{}, error) {
 	return expr.Value, nil
@@ -210,4 +223,23 @@ func (i *Interpreter) isEqual(a, b interface{}) bool {
 	}
 
 	return a == b
+}
+
+func (i *Interpreter) stringify(obj interface{}) string {
+	if obj == nil {
+		return "nil"
+	}
+
+	_, ok := obj.(float64)
+	if ok {
+		if str, ok := obj.(string); ok {
+			if strings.HasSuffix(str, ".0") {
+				str = str[0 : len(str)-2]
+			}
+
+			return str
+		}
+	}
+
+	return obj.(string)
 }
