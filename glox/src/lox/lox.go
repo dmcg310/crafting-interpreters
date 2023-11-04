@@ -11,8 +11,10 @@ import (
 )
 
 type Lox struct {
-	HadError bool
-	Reporter report.Reporter
+	Interpreter     Interpreter
+	HadError        bool
+	HadRuntimeError bool
+	Reporter        report.Reporter
 }
 
 func (l *Lox) RunFile(path string) {
@@ -60,11 +62,19 @@ func (l *Lox) Run(source string) {
 		return
 	}
 
-	ast := AstPrinter{}
-	fmt.Println(ast.Print(expr))
+	if l.HadRuntimeError {
+		os.Exit(70)
+	}
+
+	l.Interpreter.interpret(expr)
 }
 
 func (l *Lox) Error(line int, message string) {
 	l.Reporter.Error(line, message)
 	l.HadError = true
+}
+
+func (l *Lox) runtimeError(error *RuntimeError) {
+	log.Printf("%s\n[line %d]\n", error.Msg, error.Token.Line)
+	l.HadRuntimeError = true
 }

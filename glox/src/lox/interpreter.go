@@ -2,10 +2,9 @@ package lox
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/dmcg310/glox/src/ast"
 	"github.com/dmcg310/glox/src/token"
+	"strings"
 )
 
 type Interpreter struct{}
@@ -21,11 +20,11 @@ func (i *Interpreter) interpret(expr ast.Expr) error {
 	return nil
 }
 
-func (i *Interpreter) VisitLiteralExpr(expr ast.Literal) (interface{}, error) {
+func (i *Interpreter) VisitLiteral(expr *ast.Literal) (interface{}, error) {
 	return expr.Value, nil
 }
 
-func (i *Interpreter) VisitGroupingExpr(expr ast.Grouping) (interface{}, error) {
+func (i *Interpreter) VisitGrouping(expr *ast.Grouping) (interface{}, error) {
 	return i.evaluate(expr.Expression)
 }
 
@@ -33,7 +32,7 @@ func (i *Interpreter) evaluate(expr ast.Expr) (interface{}, error) {
 	return expr.Accept(i)
 }
 
-func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) (interface{}, error) {
+func (i *Interpreter) VisitBinary(expr *ast.Binary) (interface{}, error) {
 	left, err := i.evaluate(expr.Left)
 	if err != nil {
 		return nil, err
@@ -155,7 +154,7 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) (interface{}, error) {
 	return nil, fmt.Errorf("unknown binary operator: %v", expr.Operator.Type)
 }
 
-func (i *Interpreter) VisitUnaryExpr(expr ast.Unary) (interface{}, error) {
+func (i *Interpreter) VisitUnary(expr *ast.Unary) (interface{}, error) {
 	right, err := i.evaluate(expr.Right)
 	if err != nil {
 		return nil, err

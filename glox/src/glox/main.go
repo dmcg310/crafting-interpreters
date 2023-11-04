@@ -10,8 +10,10 @@ import (
 func main() {
 	reporter := &report.LoxReporter{}
 	l := lox.Lox{
-		HadError: false,
-		Reporter: reporter,
+		Interpreter:     lox.Interpreter{},
+		HadError:        false,
+		HadRuntimeError: false,
+		Reporter:        reporter,
 	}
 
 	if len(os.Args) > 2 {
