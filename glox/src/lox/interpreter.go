@@ -39,12 +39,32 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) (interface{}, error) {
 
 	switch expr.Operator.Type {
 	case token.GREATER:
+		err := i.checkNumberOperands(expr.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
+
 		return leftNum > rightNum, nil
 	case token.GREATER_EQUAL:
+		err := i.checkNumberOperands(expr.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
+
 		return leftNum >= rightNum, nil
 	case token.LESS:
+		err := i.checkNumberOperands(expr.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
+
 		return leftNum < rightNum, nil
 	case token.LESS_EQUAL:
+		err := i.checkNumberOperands(expr.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
+
 		return leftNum <= rightNum, nil
 	case token.BANG_EQUAL:
 		return !i.isEqual(left, right), nil
@@ -65,9 +85,13 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) (interface{}, error) {
 			return leftStr + rightStr, nil
 		}
 
-		return nil, fmt.Errorf("operands must be two numbers or two strings")
-
+		return nil, &RuntimeError{Token: expr.Operator, Msg: "Operands must be two numbers or two strings."}
 	case token.MINUS:
+		err := i.checkNumberOperands(expr.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
+
 		leftVal, ok := left.(float64)
 		if !ok {
 			return nil, fmt.Errorf("left operand must be a number")
@@ -80,6 +104,11 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) (interface{}, error) {
 
 		return leftVal - rightVal, nil
 	case token.SLASH:
+		err := i.checkNumberOperands(expr.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
+
 		leftVal, ok := left.(float64)
 		if !ok {
 			return nil, fmt.Errorf("left operand must be a number")
@@ -92,6 +121,11 @@ func (i *Interpreter) VisitBinaryExpr(expr *ast.Binary) (interface{}, error) {
 
 		return leftVal / rightVal, nil
 	case token.STAR:
+		err := i.checkNumberOperands(expr.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
+
 		leftVal, ok := left.(float64)
 		if !ok {
 			return nil, fmt.Errorf("left operand must be a number")
@@ -116,6 +150,11 @@ func (i *Interpreter) VisitUnaryExpr(expr ast.Unary) (interface{}, error) {
 
 	switch expr.Operator.Type {
 	case token.MINUS:
+		err := i.checkNumberOperand(expr.Operator, right)
+		if err != nil {
+			return nil, err
+		}
+
 		rightVal, ok := right.(float64)
 		if !ok {
 			return nil, fmt.Errorf("operand must be a number")
@@ -127,6 +166,25 @@ func (i *Interpreter) VisitUnaryExpr(expr ast.Unary) (interface{}, error) {
 	}
 
 	return nil, fmt.Errorf("unknown unary operator: %v", expr.Operator.Type)
+}
+
+func (i *Interpreter) checkNumberOperand(operator token.Token, operand interface{}) error {
+	_, ok := operand.(float64)
+	if !ok {
+		return &RuntimeError{Token: operator, Msg: "Operand must be a number."}
+	}
+
+	return nil
+}
+
+func (i *Interpreter) checkNumberOperands(operator token.Token, left, right interface{}) error {
+	_, leftOk := left.(float64)
+	_, rightOk := right.(float64)
+	if leftOk && rightOk {
+		return nil
+	}
+
+	return &RuntimeError{Token: operator, Msg: "Operands must be numbers."}
 }
 
 func (i *Interpreter) isTruthy(obj interface{}) bool {
