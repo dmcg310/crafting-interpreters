@@ -2,9 +2,9 @@ package lox
 
 import (
 	"fmt"
+	"strconv"
 	"github.com/dmcg310/glox/src/ast"
 	"github.com/dmcg310/glox/src/token"
-	"strings"
 )
 
 type Interpreter struct{}
@@ -229,16 +229,13 @@ func (i *Interpreter) stringify(obj interface{}) string {
 		return "nil"
 	}
 
-	_, ok := obj.(float64)
-	if ok {
-		if str, ok := obj.(string); ok {
-			if strings.HasSuffix(str, ".0") {
-				str = str[0 : len(str)-2]
-			}
-
-			return str
-		}
+	if num, ok := obj.(float64); ok {
+		return strconv.FormatFloat(num, 'f', -1, 64)
 	}
 
-	return obj.(string)
+	if str, ok := obj.(string); ok {
+		return str
+	}
+
+	return fmt.Sprintf("%v", obj)
 }
