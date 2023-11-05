@@ -5,6 +5,6 @@ type Visitor interface {
 	VisitGrouping(expr *Grouping) (interface{}, error)
 	VisitLiteral(expr *Literal) (interface{}, error)
 	VisitUnary(expr *Unary) (interface{}, error)
-	VisitExpression(expr *Expression) (interface{}, error)
-	VisitPrint(expr *Print) (interface{}, error)
+	VisitExpression(expr *Expression) error
+	VisitPrint(expr *Print) error
 }

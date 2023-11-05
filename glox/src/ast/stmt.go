@@ -9,7 +9,7 @@ type Expression struct {
 }
 
 func (stmt *Expression) Accept(visitor Visitor) (interface{}, error) {
-	return visitor.VisitExpression(stmt)
+	return visitor.VisitExpression(stmt), nil
 }
 
 type Print struct {
@@ -17,5 +17,5 @@ type Print struct {
 }
 
 func (stmt *Print) Accept(visitor Visitor) (interface{}, error) {
-	return visitor.VisitPrint(stmt)
+	return visitor.VisitPrint(stmt), nil
 }

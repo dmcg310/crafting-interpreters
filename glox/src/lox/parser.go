@@ -23,8 +23,13 @@ func NewParser(tokens []token.Token, lox *Lox) Parser {
 func (p *Parser) Parse() []ast.Stmt {
 	statements := []ast.Stmt{}
 	for !p.isAtEnd() {
-		res, _ := p.statement()
-		statements = append(statements, res)
+		stmt, err := p.statement()
+		if err != nil {
+			p.synchronise() // Skip to the next statement boundary after an error.
+
+			continue
+		}
+		statements = append(statements, stmt)
 	}
 
 	return statements
@@ -48,9 +53,12 @@ func (p *Parser) printStatement() (ast.Stmt, error) {
 		return nil, err
 	}
 
-	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after value.")
+	if err != nil {
+		return nil, err
+	}
 
-	return ast.Stmt.Print(value)
+	return &ast.Print{Expression: value}, nil
 }
 
 func (p *Parser) expressionStatement() (ast.Stmt, error) {
@@ -59,9 +67,12 @@ func (p *Parser) expressionStatement() (ast.Stmt, error) {
 		return nil, err
 	}
 
-	p.consume(token.SEMICOLON, "Expect ';' after expression.")
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after expression.")
+	if err != nil {
+		return nil, err
+	}
 
-	return ast.Stmt.Expression(expr)
+	return &ast.Expression{Expression: expr}, nil
 }
 
 func (p *Parser) equality() (ast.Expr, error) {
@@ -223,7 +234,7 @@ func (p *Parser) consume(ttype token.TTokentype, message string) (token.Token, e
 		return p.advance(), nil
 	}
 
-	return token.Token{}, fmt.Errorf("%v %s", p.peek(), message)
+	return token.Token{}, p.error(p.peek(), message)
 }
 
 func (p *Parser) check(ttype token.TTokentype) bool {

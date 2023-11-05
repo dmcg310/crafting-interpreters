@@ -2,21 +2,29 @@ package lox
 
 import (
 	"fmt"
-	"strconv"
 	"github.com/dmcg310/glox/src/ast"
 	"github.com/dmcg310/glox/src/token"
+	"strconv"
 )
 
 type Interpreter struct{}
 
-func (i *Interpreter) interpret(expr ast.Expr) error {
-	val, err := i.evaluate(expr)
-	if err != nil {
-		return err
+func (i *Interpreter) interpret(statements []ast.Stmt) error {
+	for _, stmt := range statements {
+		if expressionStmt, ok := stmt.(*ast.Expression); ok {
+			result, err := i.evaluate(expressionStmt.Expression)
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(i.stringify(result))
+		} else {
+			_, err := stmt.Accept(i)
+			if err != nil {
+				return err
+			}
+		}
 	}
-
-	fmt.Println(i.stringify(val))
-
 	return nil
 }
 
@@ -30,6 +38,27 @@ func (i *Interpreter) VisitGrouping(expr *ast.Grouping) (interface{}, error) {
 
 func (i *Interpreter) evaluate(expr ast.Expr) (interface{}, error) {
 	return expr.Accept(i)
+}
+
+func (i *Interpreter) execute(stmt ast.Stmt) (interface{}, error) {
+	return stmt.Accept(i)
+}
+
+func (i *Interpreter) VisitExpression(stmt *ast.Expression) error {
+	_, err := i.evaluate(stmt.Expression)
+
+	return err
+}
+
+func (i *Interpreter) VisitPrint(stmt *ast.Print) error {
+	value, err := i.evaluate(stmt.Expression)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(i.stringify(value))
+
+	return nil
 }
 
 func (i *Interpreter) VisitBinary(expr *ast.Binary) (interface{}, error) {
