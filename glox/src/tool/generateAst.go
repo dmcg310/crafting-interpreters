@@ -17,13 +17,20 @@ func main() {
 
 	g := GenerateAst{}
 	outputDir := os.Args[1]
-	types := []string{
+	exprTypes := []string{
 		"Binary   : Expr Left, token.Token Operator, Expr Right",
 		"Grouping : Expr Expression",
 		"Literal  : interface{} Value",
 		"Unary    : token.Token Operator, Expr Right",
 	}
-	g.defineAst(outputDir, "Expr", types)
+
+	stmtTypes := []string{
+		"Expression : Expr Expression",
+		"Print : Expr Expression",
+	}
+
+	g.defineAst(outputDir, "Expr", exprTypes)
+	g.defineAst(outputDir, "Stmt", stmtTypes)
 }
 
 func (g *GenerateAst) defineAst(outputDir, baseName string, types []string) {

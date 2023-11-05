@@ -20,18 +20,48 @@ func NewParser(tokens []token.Token, lox *Lox) Parser {
 	}
 }
 
-func (p *Parser) Parse() ast.Expr {
-	expr, err := p.expression()
-	if err != nil {
-		p.synchronise()
-		return nil
+func (p *Parser) Parse() []ast.Stmt {
+	statements := []ast.Stmt{}
+	for !p.isAtEnd() {
+		res, _ := p.statement()
+		statements = append(statements, res)
 	}
 
-	return expr
+	return statements
 }
 
 func (p *Parser) expression() (ast.Expr, error) {
 	return p.equality()
+}
+
+func (p *Parser) statement() (ast.Stmt, error) {
+	if p.match(token.PRINT) {
+		return p.printStatement()
+	}
+
+	return p.expressionStatement()
+}
+
+func (p *Parser) printStatement() (ast.Stmt, error) {
+	value, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	p.consume(token.SEMICOLON, "Expect ';' after value.")
+
+	return ast.Stmt.Print(value)
+}
+
+func (p *Parser) expressionStatement() (ast.Stmt, error) {
+	expr, err := p.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	p.consume(token.SEMICOLON, "Expect ';' after expression.")
+
+	return ast.Stmt.Expression(expr)
 }
 
 func (p *Parser) equality() (ast.Expr, error) {
