@@ -15,6 +15,7 @@ type Lox struct {
 	HadError        bool
 	HadRuntimeError bool
 	Reporter        report.Reporter
+	Environment     Environment
 }
 
 func (l *Lox) RunFile(path string) {
@@ -30,6 +31,7 @@ func (l *Lox) RunFile(path string) {
 }
 
 func (l *Lox) RunPrompt() {
+	l.Environment = NewEnvironment()
 	_scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -66,7 +68,7 @@ func (l *Lox) Run(source string) {
 		os.Exit(70)
 	}
 
-	l.Interpreter.interpret(expr)
+	_ = l.Interpreter.interpret(expr, l.Environment)
 }
 
 func (l *Lox) Error(line int, message string) {

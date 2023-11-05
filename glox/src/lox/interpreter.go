@@ -7,9 +7,13 @@ import (
 	"strconv"
 )
 
-type Interpreter struct{}
+type Interpreter struct {
+	Environment Environment
+}
 
-func (i *Interpreter) interpret(statements []ast.Stmt) error {
+func (i *Interpreter) interpret(statements []ast.Stmt, environment Environment) error {
+	i.Environment = environment
+
 	for _, stmt := range statements {
 		if expressionStmt, ok := stmt.(*ast.Expression); ok {
 			result, err := i.evaluate(expressionStmt.Expression)
@@ -61,13 +65,28 @@ func (i *Interpreter) VisitPrint(stmt *ast.Print) error {
 	return nil
 }
 
-// temporary
 func (i *Interpreter) VisitVariable(expr *ast.Variable) (interface{}, error) {
-	return nil, nil
+	res, err := i.Environment.get(expr.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
-// temporary
 func (i *Interpreter) VisitVar(stmt *ast.Var) (interface{}, error) {
+	var val interface{}
+	var err error
+
+	if stmt.Initialiser != nil {
+		val, err = i.evaluate(stmt.Initialiser)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	i.Environment.define(stmt.Name.Lexeme, val)
+
 	return nil, nil
 }
 
