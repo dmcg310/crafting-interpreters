@@ -51,6 +51,15 @@ func (printer *AstPrinter) VisitPrint(expr *ast.Print) error {
 	return nil
 }
 
+// temporary
+func (printer *AstPrinter) VisitVariable(expr *ast.Variable) (interface{}, error) {
+	return nil, nil
+}
+
+func (printer *AstPrinter) VisitVar(stmt *ast.Var) (interface{}, error) {
+	return nil, nil
+}
+
 func (printer *AstPrinter) visitBinaryExpr(expr *ast.Binary) string {
 	return printer.parenthesise(expr.Operator.Lexeme, expr.Left, expr.Right)
 }

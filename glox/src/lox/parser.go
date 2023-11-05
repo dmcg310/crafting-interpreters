@@ -23,12 +23,12 @@ func NewParser(tokens []token.Token, lox *Lox) Parser {
 func (p *Parser) Parse() []ast.Stmt {
 	statements := []ast.Stmt{}
 	for !p.isAtEnd() {
-		stmt, err := p.statement()
+		stmt, err := p.declaration()
 		if err != nil {
-			p.synchronise() // Skip to the next statement boundary after an error.
-
+			p.synchronise()
 			continue
 		}
+
 		statements = append(statements, stmt)
 	}
 
@@ -37,6 +37,14 @@ func (p *Parser) Parse() []ast.Stmt {
 
 func (p *Parser) expression() (ast.Expr, error) {
 	return p.equality()
+}
+
+func (p *Parser) declaration() (ast.Stmt, error) {
+	if p.match(token.VAR) {
+		return p.varDeclaration()
+	}
+
+	return p.statement()
 }
 
 func (p *Parser) statement() (ast.Stmt, error) {
@@ -59,6 +67,28 @@ func (p *Parser) printStatement() (ast.Stmt, error) {
 	}
 
 	return &ast.Print{Expression: value}, nil
+}
+
+func (p *Parser) varDeclaration() (ast.Stmt, error) {
+	name, err := p.consume(token.IDENTIFIER, "Expect variable name.")
+	if err != nil {
+		return nil, err
+	}
+
+	var initialiser ast.Expr
+	if p.match(token.EQUAL) {
+		initialiser, err = p.expression()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after variable declaration.")
+	if err != nil {
+		return nil, err
+	}
+
+	return &ast.Var{Name: name, Initialiser: initialiser}, nil
 }
 
 func (p *Parser) expressionStatement() (ast.Stmt, error) {
@@ -199,6 +229,10 @@ func (p *Parser) primary() (ast.Expr, error) {
 
 	if p.match(token.NUMBER, token.STRING) {
 		return &ast.Literal{Value: p.previous().Literal}, nil
+	}
+
+	if p.match(token.IDENTIFIER) {
+		return &ast.Variable{Name: p.previous()}, nil
 	}
 
 	if p.match(token.LEFT_PAREN) {

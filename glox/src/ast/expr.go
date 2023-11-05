@@ -7,9 +7,9 @@ type Expr interface {
 }
 
 type Binary struct {
-	Left Expr
+	Left     Expr
 	Operator token.Token
-	Right Expr
+	Right    Expr
 }
 
 func (expr *Binary) Accept(visitor Visitor) (interface{}, error) {
@@ -34,10 +34,17 @@ func (expr *Literal) Accept(visitor Visitor) (interface{}, error) {
 
 type Unary struct {
 	Operator token.Token
-	Right Expr
+	Right    Expr
 }
 
 func (expr *Unary) Accept(visitor Visitor) (interface{}, error) {
 	return visitor.VisitUnary(expr)
 }
 
+type Variable struct {
+	Name token.Token
+}
+
+func (expr *Variable) Accept(visitor Visitor) (interface{}, error) {
+	return visitor.VisitVariable(expr)
+}

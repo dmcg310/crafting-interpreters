@@ -61,6 +61,16 @@ func (i *Interpreter) VisitPrint(stmt *ast.Print) error {
 	return nil
 }
 
+// temporary
+func (i *Interpreter) VisitVariable(expr *ast.Variable) (interface{}, error) {
+	return nil, nil
+}
+
+// temporary
+func (i *Interpreter) VisitVar(stmt *ast.Var) (interface{}, error) {
+	return nil, nil
+}
+
 func (i *Interpreter) VisitBinary(expr *ast.Binary) (interface{}, error) {
 	left, err := i.evaluate(expr.Left)
 	if err != nil {
