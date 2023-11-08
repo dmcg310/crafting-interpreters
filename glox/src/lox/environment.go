@@ -23,6 +23,19 @@ func (e *Environment) get(name token.Token) (interface{}, *RuntimeError) {
 	}
 }
 
+func (e *Environment) assign(name token.Token, newVal interface{}) *RuntimeError {
+	if _, ok := e.values[name.Lexeme]; ok {
+		e.values[name.Lexeme] = newVal
+
+		return nil
+	}
+
+	return &RuntimeError{
+		Token: name,
+		Msg:   "Undefined variable '" + name.Lexeme + "'.",
+	}
+}
+
 func (e *Environment) define(name string, value interface{}) {
 	e.values[name] = value
 }

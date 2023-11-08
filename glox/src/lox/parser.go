@@ -36,7 +36,7 @@ func (p *Parser) Parse() []ast.Stmt {
 }
 
 func (p *Parser) expression() (ast.Expr, error) {
-	return p.equality()
+	return p.assignment()
 }
 
 func (p *Parser) declaration() (ast.Stmt, error) {
@@ -103,6 +103,35 @@ func (p *Parser) expressionStatement() (ast.Stmt, error) {
 	}
 
 	return &ast.Expression{Expression: expr}, nil
+}
+
+func (p *Parser) assignment() (ast.Expr, error) {
+	expr, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	if p.match(token.EQUAL) {
+		equals := p.previous()
+		val, err := p.assignment()
+		if err != nil {
+			return nil, err
+		}
+
+		varExpr, ok := expr.(*ast.Variable)
+		if ok {
+			name := varExpr.Name
+
+			return &ast.Assign{
+				Name:  name,
+				Value: val,
+			}, nil
+		}
+
+		p.error(equals, "Invalid assignment target.")
+	}
+
+	return expr, nil
 }
 
 func (p *Parser) equality() (ast.Expr, error) {

@@ -74,6 +74,25 @@ func (i *Interpreter) VisitVariable(expr *ast.Variable) (interface{}, error) {
 	return res, nil
 }
 
+func (i *Interpreter) VisitAssign(expr *ast.Assign) (interface{}, error) {
+	var (
+		val interface{}
+		err error
+	)
+
+	val, err = i.evaluate(expr.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	err = i.Environment.assign(expr.Name, val)
+	if err != nil {
+		return nil, err
+	}
+
+	return val, nil
+}
+
 func (i *Interpreter) VisitVar(stmt *ast.Var) (interface{}, error) {
 	var val interface{}
 	var err error

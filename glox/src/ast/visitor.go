@@ -1,6 +1,7 @@
 package ast
 
 type Visitor interface {
+	VisitAssign(expr *Assign) (interface{}, error)
 	VisitBinary(expr *Binary) (interface{}, error)
 	VisitGrouping(expr *Grouping) (interface{}, error)
 	VisitLiteral(expr *Literal) (interface{}, error)

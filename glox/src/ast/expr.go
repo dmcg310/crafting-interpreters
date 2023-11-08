@@ -5,6 +5,14 @@ import "github.com/dmcg310/glox/src/token"
 type Expr interface {
 	Accept(visitor Visitor) (interface{}, error)
 }
+type Assign struct {
+	Name  token.Token
+	Value Expr
+}
+
+func (expr *Assign) Accept(visitor Visitor) (interface{}, error) {
+	return visitor.VisitAssign(expr)
+}
 
 type Binary struct {
 	Left     Expr

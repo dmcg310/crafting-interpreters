@@ -18,6 +18,7 @@ func main() {
 	g := GenerateAst{}
 	outputDir := os.Args[1]
 	exprTypes := []string{
+		"Assign   : token.Token Name, Expr Value",
 		"Binary   : Expr Left, token.Token Operator, Expr Right",
 		"Grouping : Expr Expression",
 		"Literal  : interface{} Value",
