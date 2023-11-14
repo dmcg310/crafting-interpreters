@@ -6,6 +6,14 @@ type Stmt interface {
 	Accept(visitor Visitor) (interface{}, error)
 }
 
+type Block struct {
+	Statements []Stmt
+}
+
+func (stmt *Block) Accept(visitor Visitor) (interface{}, error) {
+	return visitor.VisitBlock(stmt), nil
+}
+
 type Expression struct {
 	Expression Expr
 }

@@ -19,6 +19,8 @@ type Lox struct {
 }
 
 func (l *Lox) RunFile(path string) {
+	l.Environment = NewEnvironment()
+
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatalf("Error reading file: %s", err)

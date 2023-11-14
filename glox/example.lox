@@ -1,3 +1,14 @@
-print "one";
-print true;
-print 2 + 1;
+var a = "Hello from global";
+{
+    var a = "Hello from inner x1";
+    {
+        var a = "Hello from inner x2";
+        {
+            var a = "Hello from inner x3";
+            print a;
+        }
+        print a;
+    }
+    print a;
+}
+print a;

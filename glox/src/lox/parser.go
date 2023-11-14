@@ -52,6 +52,17 @@ func (p *Parser) statement() (ast.Stmt, error) {
 		return p.printStatement()
 	}
 
+	if p.match(token.LEFT_BRACE) {
+		statements, err := p.block()
+		if err != nil {
+			return nil, err
+		}
+
+		return &ast.Block{
+			Statements: statements,
+		}, nil
+	}
+
 	return p.expressionStatement()
 }
 
@@ -105,6 +116,26 @@ func (p *Parser) expressionStatement() (ast.Stmt, error) {
 	return &ast.Expression{Expression: expr}, nil
 }
 
+func (p *Parser) block() ([]ast.Stmt, error) {
+	statements := make([]ast.Stmt, 10)
+
+	for !p.check(token.RIGHT_BRACE) && !p.isAtEnd() {
+		res, err := p.declaration()
+		if err != nil {
+			return nil, err
+		}
+
+		statements = append(statements, res)
+	}
+
+	_, err := p.consume(token.RIGHT_BRACE, "Expect '}' after block.")
+	if err != nil {
+		return nil, err
+	}
+
+	return statements, nil
+}
+
 func (p *Parser) assignment() (ast.Expr, error) {
 	expr, err := p.equality()
 	if err != nil {
@@ -128,7 +159,10 @@ func (p *Parser) assignment() (ast.Expr, error) {
 			}, nil
 		}
 
-		p.error(equals, "Invalid assignment target.")
+		err = p.error(equals, "Invalid assignment target.")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return expr, nil

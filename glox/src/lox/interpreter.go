@@ -48,6 +48,35 @@ func (i *Interpreter) execute(stmt ast.Stmt) (interface{}, error) {
 	return stmt.Accept(i)
 }
 
+func (i *Interpreter) VisitBlock(stmt *ast.Block) error {
+	err := i.executeBlock(stmt.Statements, NewEnvironment(&i.Environment))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *Interpreter) executeBlock(statements []ast.Stmt, environment Environment) error {
+	prev := i.Environment
+	i.Environment = environment
+
+	for _, statement := range statements {
+		if statement == nil {
+			continue
+		}
+
+		_, err := i.execute(statement)
+		if err != nil {
+			return err
+		}
+	}
+
+	i.Environment = prev
+
+	return nil
+}
+
 func (i *Interpreter) VisitExpression(stmt *ast.Expression) error {
 	_, err := i.evaluate(stmt.Expression)
 
@@ -85,10 +114,7 @@ func (i *Interpreter) VisitAssign(expr *ast.Assign) (interface{}, error) {
 		return nil, err
 	}
 
-	err = i.Environment.assign(expr.Name, val)
-	if err != nil {
-		return nil, err
-	}
+	_ = i.Environment.assign(expr.Name, val)
 
 	return val, nil
 }
