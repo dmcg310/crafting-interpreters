@@ -83,6 +83,21 @@ func (i *Interpreter) VisitExpression(stmt *ast.Expression) error {
 	return err
 }
 
+func (i *Interpreter) VisitIf(stmt *ast.If) error {
+	res, err := i.evaluate(stmt.Condition)
+	if err != nil {
+		return err
+	}
+
+	if i.isTruthy(res) {
+		i.execute(stmt.ThenBranch)
+	} else if stmt.ElseBranch != nil {
+		i.execute(stmt.ElseBranch)
+	}
+
+	return nil
+}
+
 func (i *Interpreter) VisitPrint(stmt *ast.Print) error {
 	value, err := i.evaluate(stmt.Expression)
 	if err != nil {

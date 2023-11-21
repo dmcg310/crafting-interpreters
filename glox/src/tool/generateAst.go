@@ -29,8 +29,9 @@ func main() {
 	stmtTypes := []string{
 		"Statements : []Stmt",
 		"Expression : Expr Expression",
-		"Print : Expr Expression",
-		"Var : token.Token Name, Initialiser Expr",
+		"If         : Condition Expr, ThenBranch Stmt, ElseBranch Stmt",
+		"Print      : Expr Expression",
+		"Var        : token.Token Name, Initialiser Expr",
 	}
 
 	g.defineAst(outputDir, "Expr", exprTypes)

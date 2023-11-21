@@ -12,3 +12,7 @@ var a = "Hello from global";
     print a;
 }
 print a;
+
+if (1 > 0) {
+    print "If condition";
+} 

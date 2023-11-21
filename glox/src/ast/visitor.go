@@ -9,6 +9,7 @@ type Visitor interface {
 	VisitVariable(expr *Variable) (interface{}, error)
 	VisitBlock(expr *Block) error
 	VisitExpression(expr *Expression) error
+	VisitIf(expr *If) error
 	VisitPrint(expr *Print) error
 	VisitVar(stmt *Var) (interface{}, error)
 }

@@ -22,6 +22,16 @@ func (stmt *Expression) Accept(visitor Visitor) (interface{}, error) {
 	return visitor.VisitExpression(stmt), nil
 }
 
+type If struct {
+	Condition  Expr
+	ThenBranch Stmt
+	ElseBranch Stmt
+}
+
+func (stmt *If) Accept(visitor Visitor) (interface{}, error) {
+	return visitor.VisitIf(stmt), nil
+}
+
 type Print struct {
 	Expression Expr
 }
