@@ -40,6 +40,16 @@ func (expr *Literal) Accept(visitor Visitor) (interface{}, error) {
 	return visitor.VisitLiteral(expr)
 }
 
+type Logical struct {
+	Left     Expr
+	Operator token.Token
+	Right    Expr
+}
+
+func (expr *Logical) Accept(visitor Visitor) (interface{}, error) {
+	return visitor.VisitLogical(expr)
+}
+
 type Unary struct {
 	Operator token.Token
 	Right    Expr

@@ -176,7 +176,7 @@ func (p *Parser) block() ([]ast.Stmt, error) {
 }
 
 func (p *Parser) assignment() (ast.Expr, error) {
-	expr, err := p.equality()
+	expr, err := p.or()
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +202,44 @@ func (p *Parser) assignment() (ast.Expr, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	return expr, nil
+}
+
+func (p *Parser) or() (ast.Expr, error) {
+	expr, err := p.and()
+	if err != nil {
+		return nil, err
+	}
+
+	for p.match(token.OR) {
+		operator := p.previous()
+		right, err := p.and()
+		if err != nil {
+			return nil, err
+		}
+
+		expr = &ast.Logical{Left: expr, Operator: operator, Right: right}
+	}
+
+	return expr, nil
+}
+
+func (p *Parser) and() (ast.Expr, error) {
+	expr, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	for p.match(token.AND) {
+		operator := p.previous()
+		right, err := p.equality()
+		if err != nil {
+			return nil, err
+		}
+
+		expr = &ast.Logical{Left: expr, Operator: operator, Right: right}
 	}
 
 	return expr, nil

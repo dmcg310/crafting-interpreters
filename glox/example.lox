@@ -14,5 +14,14 @@ var a = "Hello from global";
 print a;
 
 if (1 > 0) {
-    print "If condition";
+    print "One is greater than zero";
 } 
+
+if (1 > 0 and 1 < 10) {
+    print "One is greater than zero, and less than ten";
+}
+
+var num = 100;
+if (num > 0 or num < 100) {
+    print "Num is either greater than zero or less than 100";
+}

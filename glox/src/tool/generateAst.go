@@ -22,6 +22,7 @@ func main() {
 		"Binary   : Expr Left, token.Token Operator, Expr Right",
 		"Grouping : Expr Expression",
 		"Literal  : interface{} Value",
+		"Logical  : Expr Left, token.Token Operator, Expr Right",
 		"Unary    : token.Token Operator, Expr Right",
 		"Variable : token.Token Name",
 	}
