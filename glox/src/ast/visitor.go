@@ -14,4 +14,5 @@ type Visitor interface {
 	VisitIf(expr *If) error
 	VisitPrint(expr *Print) error
 	VisitVar(stmt *Var) (interface{}, error)
+	VisitWhile(stmt *While) (interface{}, error)
 }

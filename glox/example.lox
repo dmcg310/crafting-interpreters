@@ -25,3 +25,7 @@ var num = 100;
 if (num > 0 or num < 100) {
     print "Num is either greater than zero or less than 100";
 }
+
+while (true) {
+    print "Infinite!";
+}

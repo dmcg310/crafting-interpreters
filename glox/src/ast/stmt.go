@@ -48,3 +48,12 @@ type Var struct {
 func (stmt *Var) Accept(visitor Visitor) (interface{}, error) {
 	return visitor.VisitVar(stmt)
 }
+
+type While struct {
+	Condition Expr
+	Body      Stmt
+}
+
+func (stmt *While) Accept(visitor Visitor) (interface{}, error) {
+	return visitor.VisitWhile(stmt)
+}

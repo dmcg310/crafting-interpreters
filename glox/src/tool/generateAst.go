@@ -33,6 +33,7 @@ func main() {
 		"If         : Condition Expr, ThenBranch Stmt, ElseBranch Stmt",
 		"Print      : Expr Expression",
 		"Var        : token.Token Name, Initialiser Expr",
+		"While      : Condition Expr, Body Stmt",
 	}
 
 	g.defineAst(outputDir, "Expr", exprTypes)

@@ -137,6 +137,22 @@ func (i *Interpreter) VisitVariable(expr *ast.Variable) (interface{}, error) {
 	return res, nil
 }
 
+func (i *Interpreter) VisitWhile(stmt *ast.While) (interface{}, error) {
+	res, err := i.evaluate(stmt.Condition)
+	if err != nil {
+		return nil, err
+	}
+
+	for i.isTruthy(res) {
+		_, err := i.execute(stmt.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
+}
+
 func (i *Interpreter) VisitAssign(expr *ast.Assign) (interface{}, error) {
 	var (
 		val interface{}
