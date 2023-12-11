@@ -26,6 +26,11 @@ if (num > 0 or num < 100) {
     print "Num is either greater than zero or less than 100";
 }
 
-while (true) {
-    print "Infinite!";
+var a = 0;
+var temp;
+
+for (var b = 1; a < 10000; b = temp + b) {
+  print a;
+  temp = a;
+  a = b;
 }
