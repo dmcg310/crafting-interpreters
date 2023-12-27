@@ -12,8 +12,24 @@ typedef struct {
   bool panicMode;
 } Parser;
 
+typedef enum {
+  PREC_NONE,
+  PREC_ASSIGNMENT, // =
+  PREC_OR,         // or
+  PREC_AND,        // and
+  PREC_EQUALITY,   // == !=
+  PREC_COMPARISON, // < > <= >=
+  PREC_TERM,       // + -
+  PREC_FACTOR,     // * /
+  PREC_UNARY,      // ! -
+  PREC_CALL,       // . ()
+  PREC_PRIMARY
+} Precedence;
+
 Parser parser;
 Chunk *compilingChunk;
+
+static void expression();
 
 static Chunk *currentChunk() { return compilingChunk; }
 
@@ -77,7 +93,55 @@ static void emitBytes(uint8_t byte1, uint8_t byte2) {
 
 static void emitReturn() { emitByte(OP_RETURN); }
 
+static uint8_t makeConstant(Value value) {
+  int constant = addConstant(currentChunk(), value);
+  if (constant > UINT8_MAX) {
+    error("[COMPILER ERROR] Too many constants in one chunk");
+    return 0;
+  }
+
+  return (uint8_t)constant;
+}
+
+static void emitConstant(Value value) {
+  emitBytes(OP_CONSTANT, makeConstant(value));
+}
+
 static void endCompiler() { emitReturn(); }
+
+static void grouping() {
+  expression();
+  consume(TOKEN_RIGHT_PAREN, "[COMPILER ERROR] Expect ')' after expression");
+}
+
+static void number() {
+  double value = strtod(parser.previous.start, NULL);
+  emitConstant(value);
+}
+
+static void parsePrecedence(Precedence precedence);
+
+static void unary() {
+  TokenType operatorType = parser.previous.type;
+
+  // compile the operand
+  parsePrecedence(PREC_UNARY);
+
+  // emit operator instruction
+  switch (operatorType) {
+  case TOKEN_MINUS:
+    emitByte(OP_NEGATE);
+    break;
+  default: // should be unreachable
+    return;
+  }
+}
+
+static void parsePrecedence(Precedence precedence) {
+  //
+}
+
+static void expression() { parsePrecedence(PREC_ASSIGNMENT); }
 
 bool compile(const char *source, Chunk *chunk) {
   initScanner(source);
