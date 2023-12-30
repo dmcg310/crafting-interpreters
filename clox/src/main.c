@@ -40,6 +40,10 @@ static char *readFile(const char *path) {
 
   size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
   buffer[bytesRead] = '\0';
+
+  fclose(file);
+
+  return buffer;
 }
 
 static void runFile(const char *path) {

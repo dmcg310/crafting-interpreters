@@ -17,7 +17,7 @@ typedef enum {
 
 struct Obj {
   ObjType type;
-  struct Obj* next;
+  struct Obj *next;
 };
 
 struct ObjString {
@@ -34,4 +34,4 @@ static inline bool isObjType(Value value, ObjType type) {
   return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }
 
-#endif // !clox_object_h
+#endif
