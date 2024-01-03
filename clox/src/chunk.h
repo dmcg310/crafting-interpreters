@@ -9,13 +9,13 @@ typedef enum {
   OP_NIL,
   OP_TRUE,
   OP_FALSE,
+  OP_EQUAL,
   OP_POP,
   OP_GET_LOCAL,
   OP_SET_LOCAL,
   OP_GET_GLOBAL,
   OP_DEFINE_GLOBAL,
   OP_SET_GLOBAL,
-  OP_EQUAL,
   OP_GREATER,
   OP_LESS,
   OP_ADD,
@@ -28,7 +28,7 @@ typedef enum {
   OP_JUMP,
   OP_JUMP_IF_FALSE,
   OP_LOOP,
-  OP_RETURN,
+  OP_RETURN
 } OpCode;
 
 typedef struct {
@@ -44,4 +44,4 @@ void freeChunk(Chunk *chunk);
 void writeChunk(Chunk *chunk, uint8_t byte, int line);
 int addConstant(Chunk *chunk, Value value);
 
-#endif // !clox_chunk_h
+#endif

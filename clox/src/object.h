@@ -9,23 +9,21 @@
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 
 #define AS_STRING(value) ((ObjString *)AS_OBJ(value))
-#define AS_CSTRING(value) (((ObjString *)AS_OBJ(value))->chars)
+#define AS_CSTRING(value) (AS_STRING(value)->chars)
 
-typedef enum {
-  OBJ_STRING,
-} ObjType;
+typedef enum { OBJ_STRING } ObjType;
 
-struct Obj {
+typedef struct Obj {
   ObjType type;
   struct Obj *next;
-};
+} Obj;
 
-struct ObjString {
+typedef struct ObjString {
   Obj obj;
   int length;
   char *chars;
   uint32_t hash;
-};
+} ObjString;
 
 ObjString *takeString(char *chars, int length);
 ObjString *copyString(const char *chars, int length);

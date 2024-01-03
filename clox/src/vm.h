@@ -2,6 +2,7 @@
 #define clox_vm_h
 
 #include "chunk.h"
+#include "object.h"
 #include "table.h"
 #include "value.h"
 
@@ -31,4 +32,4 @@ InterpretResult interpret(const char *source);
 void push(Value value);
 Value pop();
 
-#endif // !clox_vm_h
+#endif

@@ -7,7 +7,6 @@
 #include "compiler.h"
 #include "debug.h"
 #include "memory.h"
-#include "object.h"
 #include "vm.h"
 
 VM vm;
@@ -81,7 +80,6 @@ static InterpretResult run() {
       runtimeError("Operands must be numbers");                                \
       return INTERPRET_RUNTIME_ERROR;                                          \
     }                                                                          \
-                                                                               \
     double b = AS_NUMBER(pop());                                               \
     double a = AS_NUMBER(pop());                                               \
     push(valueType(a op b));                                                   \
@@ -136,7 +134,6 @@ static InterpretResult run() {
         runtimeError("Undefined variable '%s'", name->chars);
         return INTERPRET_RUNTIME_ERROR;
       }
-
       push(value);
       break;
     }
@@ -153,7 +150,6 @@ static InterpretResult run() {
         runtimeError("Undefined variable '%s'", name->chars);
         return INTERPRET_RUNTIME_ERROR;
       }
-
       break;
     }
     case OP_EQUAL: {
@@ -179,7 +175,6 @@ static InterpretResult run() {
         runtimeError("Operands must be two numbers or two strings");
         return INTERPRET_RUNTIME_ERROR;
       }
-
       break;
     }
     case OP_SUBTRACT:
@@ -202,10 +197,11 @@ static InterpretResult run() {
 
       push(NUMBER_VAL(-AS_NUMBER(pop())));
       break;
-    case OP_PRINT:
+    case OP_PRINT: {
       printValue(pop());
       printf("\n");
       break;
+    }
     case OP_JUMP: {
       uint16_t offset = READ_SHORT();
       vm.ip += offset;
@@ -216,6 +212,7 @@ static InterpretResult run() {
       if (isFalsey(peek(0))) {
         vm.ip += offset;
       }
+
       break;
     }
     case OP_LOOP: {
@@ -238,7 +235,6 @@ static InterpretResult run() {
 
 InterpretResult interpret(const char *source) {
   Chunk chunk;
-
   initChunk(&chunk);
 
   if (!compile(source, &chunk)) {
