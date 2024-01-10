@@ -24,7 +24,7 @@ static void runtimeError(const char *format, ...) {
   va_end(args);
   fputs("\n", stderr);
 
-  CallFrame* frame = &vm.frames[vm.frameCount - 1];
+  CallFrame *frame = &vm.frames[vm.frameCount - 1];
   size_t instruction = frame->ip - frame->function->chunk.code - 1;
   int line = frame->function->chunk.lines[instruction];
   fprintf(stderr, "[LINE %d] in script\n", line);
