@@ -1,18 +1,8 @@
-fun main() {
-  var a = 0;
-  var temp;
-  
-  for (var b = 1; a < 10000; b = temp + b) {
-    print a;
-    temp = a;
-    a = b;
-  }
-
-  printHelloWorld();
+fun fib(n) {
+  if (n < 2) return n;
+  return fib(n - 2) + fib(n - 1);
 }
 
-fun printHelloWorld() {
-  print "Hello, world!";
-}
-
-main();
+var start = clock();
+print fib(35);
+print clock() - start;
