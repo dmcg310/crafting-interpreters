@@ -1,4 +1,4 @@
-# Running Clox
+# Running Glox
 
 ```sh
 go run src/glox/main.go # run the REPL
